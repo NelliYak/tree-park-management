@@ -3,8 +3,10 @@ import {
   IsNotEmpty,
   IsOptional,
   IsInt,
-  Min,
+  IsEnum,
 } from 'class-validator';
+
+import { Role } from '../../auth/role.enum';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -15,6 +17,8 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsInt()
-  @Min(0)
   age?: number;
+
+  @IsEnum(Role)
+  role: Role;
 }

@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
+import { RolesGuard } from './auth/roles.guard';
+import { Reflector } from '@nestjs/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +16,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.useGlobalGuards(
+  new RolesGuard(
+    app.get(Reflector),
+  ),
+);
 
   const config = new DocumentBuilder()
     .setTitle('Tree Park Management API')
