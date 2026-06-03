@@ -6,6 +6,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { SpeciesModule } from './species/species.module';
+import { ZonesModule } from './zones/zones.module';
+import { TreesModule } from './trees/trees.module';
 
 
 @Module({
@@ -29,6 +31,10 @@ import { SpeciesModule } from './species/species.module';
     UsersModule,
 
     SpeciesModule,
+
+    ZonesModule,
+
+    TreesModule,
   ],
 
   controllers: [AppController],
