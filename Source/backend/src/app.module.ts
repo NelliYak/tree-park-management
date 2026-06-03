@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { SpeciesModule } from './species/species.module';
 import { ZonesModule } from './zones/zones.module';
 import { TreesModule } from './trees/trees.module';
+import { InspectionsModule } from './inspections/inspections.module';
 
 
 @Module({
@@ -35,6 +36,8 @@ import { TreesModule } from './trees/trees.module';
     ZonesModule,
 
     TreesModule,
+
+    InspectionsModule,
   ],
 
   controllers: [AppController],
