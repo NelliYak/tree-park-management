@@ -7,6 +7,8 @@ import {
 
 import { InspectionsService } from './inspections.service';
 import { CreateInspectionDto } from './dto/create-inspection.dto';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/role.enum';
 
 @Controller('inspections')
 export class InspectionsController {
@@ -19,6 +21,7 @@ export class InspectionsController {
     return this.inspectionsService.findAll();
   }
 
+  @Roles(Role.ADMIN, Role.MANAGER)
   @Post()
   create(
     @Body()

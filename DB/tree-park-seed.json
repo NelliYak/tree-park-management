@@ -1,0 +1,108 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Анна Петрова",
+      "email": "anna.admin@park.local",
+      "age": 34,
+      "role": "ADMIN",
+      "password": "admin1234"
+    },
+    {
+      "id": 2,
+      "name": "Илья Соколов",
+      "email": "ilya.manager@park.local",
+      "age": 29,
+      "role": "MANAGER",
+      "password": "manager1234"
+    },
+    {
+      "id": 3,
+      "name": "Мария Кузнецова",
+      "email": "maria.guest@park.local",
+      "age": 22,
+      "role": "GUEST",
+      "password": "guest1234"
+    }
+  ],
+  "species": [
+    {
+      "id": 1,
+      "name": "Дуб черешчатый"
+    },
+    {
+      "id": 2,
+      "name": "Клен остролистный"
+    },
+    {
+      "id": 3,
+      "name": "Липа мелколистная"
+    }
+  ],
+  "zones": [
+    {
+      "id": 1,
+      "name": "Северная аллея"
+    },
+    {
+      "id": 2,
+      "name": "Детский сектор"
+    },
+    {
+      "id": 3,
+      "name": "Центральный пруд"
+    }
+  ],
+  "trees": [
+    {
+      "id": 1,
+      "name": "Дуб у фонтана",
+      "age": 46,
+      "height": 18.5,
+      "plantingDate": "1979-04-12",
+      "speciesId": 1,
+      "zoneId": 3
+    },
+    {
+      "id": 2,
+      "name": "Клен детской площадки",
+      "age": 18,
+      "height": 9.2,
+      "plantingDate": "2008-09-01",
+      "speciesId": 2,
+      "zoneId": 2
+    },
+    {
+      "id": 3,
+      "name": "Липа прогулочной зоны",
+      "age": 27,
+      "height": 13.7,
+      "plantingDate": "1999-05-16",
+      "speciesId": 3,
+      "zoneId": 1
+    }
+  ],
+  "inspections": [
+    {
+      "id": 1,
+      "inspectionDate": "2026-05-12",
+      "condition": "Хорошее",
+      "comment": "Плановая весенняя проверка без замечаний.",
+      "treeId": 1
+    },
+    {
+      "id": 2,
+      "inspectionDate": "2026-05-18",
+      "condition": "Требуется обрезка",
+      "comment": "Обнаружены сухие ветви у северной стороны кроны.",
+      "treeId": 2
+    },
+    {
+      "id": 3,
+      "inspectionDate": "2026-05-26",
+      "condition": "Удовлетворительное",
+      "comment": "Нужен дополнительный полив в жаркий период.",
+      "treeId": 3
+    }
+  ]
+}

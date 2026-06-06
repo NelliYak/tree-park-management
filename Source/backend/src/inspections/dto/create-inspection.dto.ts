@@ -1,12 +1,13 @@
 import {
-  IsNotEmpty,
+  IsDateString,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class CreateInspectionDto {
-  @IsNotEmpty()
+  @IsDateString()
   inspectionDate: string;
 
   @IsNotEmpty()

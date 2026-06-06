@@ -1,63 +1,162 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { Tree } from './entities/tree.entity';
-import { Species } from '../species/entities/species.entity';
-import { Zone } from '../zones/entities/zone.entity';
 
 import { CreateTreeDto } from './dto/create-tree.dto';
+import { UpdateTreeDto } from './dto/update-tree.dto';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class TreesService {
   constructor(
-    @InjectRepository(Tree)
-    private treesRepository: Repository<Tree>,
-
-    @InjectRepository(Species)
-    private speciesRepository: Repository<Species>,
-
-    @InjectRepository(Zone)
-    private zonesRepository: Repository<Zone>,
+    private readonly storageService: StorageService,
   ) {}
 
-  async findAll() {
-    return this.treesRepository.find({
-  relations: {
-    species: true,
-    zone: true,
-  },
-});
+  findAll() {
+    return this.storageService.getTrees().map((tree) => ({
+      id: tree.id,
+      name: tree.name,
+      age: tree.age,
+      height: tree.height,
+      plantingDate: tree.plantingDate,
+      species: this.getSpeciesById(tree.speciesId),
+      zone: this.getZoneById(tree.zoneId),
+    }));
   }
 
-  async findOne(id: number) {
-    return this.treesRepository.findOne({
-  where: { id },
-  relations: {
-    species: true,
-    zone: true,
-  },
-});
+  findOne(id: number) {
+    const tree = this.storageService
+      .getTrees()
+      .find((item) => item.id === id);
+
+    if (!tree) {
+      throw new NotFoundException(
+        `Дерево с id=${id} не найдено`,
+      );
+    }
+
+    return {
+      id: tree.id,
+      name: tree.name,
+      age: tree.age,
+      height: tree.height,
+      plantingDate: tree.plantingDate,
+      species: this.getSpeciesById(tree.speciesId),
+      zone: this.getZoneById(tree.zoneId),
+    };
   }
 
-  async create(createTreeDto: CreateTreeDto) {
-  const species = await this.speciesRepository.findOne({
-    where: { id: createTreeDto.speciesId },
-  });
+  create(createTreeDto: CreateTreeDto) {
+    const species = this.getSpeciesById(
+      createTreeDto.speciesId,
+    );
+    const zone = this.getZoneById(createTreeDto.zoneId);
+    const trees = this.storageService.getTrees();
 
-  const zone = await this.zonesRepository.findOne({
-    where: { id: createTreeDto.zoneId },
-  });
+    const treeRecord = {
+      id: this.storageService.getNextId('trees'),
+      name: createTreeDto.name,
+      age: createTreeDto.age,
+      height: createTreeDto.height,
+      plantingDate: createTreeDto.plantingDate,
+      speciesId: species.id,
+      zoneId: zone.id,
+    };
 
-  const tree = new Tree();
+    trees.push(treeRecord);
 
-  tree.name = createTreeDto.name;
-  tree.age = createTreeDto.age;
-  tree.height = createTreeDto.height;
-  tree.plantingDate = createTreeDto.plantingDate;
-  tree.species = species!;
-  tree.zone = zone!;
+    return {
+      id: treeRecord.id,
+      name: treeRecord.name,
+      age: treeRecord.age,
+      height: treeRecord.height,
+      plantingDate: treeRecord.plantingDate,
+      species,
+      zone,
+    } as Tree;
+  }
 
-  return this.treesRepository.save(tree);
-}
+  update(id: number, updateTreeDto: UpdateTreeDto) {
+    const tree = this.storageService
+      .getTrees()
+      .find((item) => item.id === id);
+
+    if (!tree) {
+      throw new NotFoundException(
+        `Дерево с id=${id} не найдено`,
+      );
+    }
+
+    if (updateTreeDto.speciesId) {
+      this.getSpeciesById(updateTreeDto.speciesId);
+    }
+
+    if (updateTreeDto.zoneId) {
+      this.getZoneById(updateTreeDto.zoneId);
+    }
+
+    Object.assign(tree, updateTreeDto);
+
+    return this.findOne(id);
+  }
+
+  remove(id: number) {
+    const trees = this.storageService.getTrees();
+    const index = trees.findIndex((item) => item.id === id);
+
+    if (index === -1) {
+      throw new NotFoundException(
+        `Дерево с id=${id} не найдено`,
+      );
+    }
+
+    const [removedTree] = trees.splice(index, 1);
+    const inspections =
+      this.storageService.getInspections();
+
+    for (let i = inspections.length - 1; i >= 0; i -= 1) {
+      if (inspections[i].treeId === id) {
+        inspections.splice(i, 1);
+      }
+    }
+
+    return {
+      ...removedTree,
+      species: this.getSpeciesById(
+        removedTree.speciesId,
+      ),
+      zone: this.getZoneById(removedTree.zoneId),
+    };
+  }
+
+  private getSpeciesById(id: number) {
+    const species = this.storageService
+      .getSpecies()
+      .find((item) => item.id === id);
+
+    if (!species) {
+      throw new NotFoundException(
+        `Порода дерева с id=${id} не найдена`,
+      );
+    }
+
+    return species;
+  }
+
+  private getZoneById(id: number) {
+    const zone = this.storageService
+      .getZones()
+      .find((item) => item.id === id);
+
+    if (!zone) {
+      throw new NotFoundException(
+        `Зона с id=${id} не найдена`,
+      );
+    }
+
+    return zone;
+  }
 }

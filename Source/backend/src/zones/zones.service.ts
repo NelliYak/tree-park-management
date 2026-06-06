@@ -1,25 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 
 import { Zone } from './entities/zone.entity';
 import { CreateZoneDto } from './dto/create-zone.dto';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class ZonesService {
   constructor(
-    @InjectRepository(Zone)
-    private zonesRepository: Repository<Zone>,
+    private readonly storageService: StorageService,
   ) {}
 
   findAll() {
-    return this.zonesRepository.find();
+    return this.storageService.getZones();
   }
 
   create(createZoneDto: CreateZoneDto) {
-    const zone =
-      this.zonesRepository.create(createZoneDto);
+    const zones = this.storageService.getZones();
+    const alreadyExists = zones.some(
+      (item) =>
+        item.name.toLowerCase() ===
+        createZoneDto.name.toLowerCase(),
+    );
 
-    return this.zonesRepository.save(zone);
+    if (alreadyExists) {
+      throw new ConflictException(
+        'Такая зона уже существует',
+      );
+    }
+
+    const zone: Zone = {
+      id: this.storageService.getNextId('zones'),
+      name: createZoneDto.name,
+    };
+
+    zones.push(zone);
+
+    return zone;
   }
 }

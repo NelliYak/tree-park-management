@@ -1,54 +1,85 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { Inspection } from './entities/inspection.entity';
-import { Tree } from '../trees/entities/tree.entity';
-
 import { CreateInspectionDto } from './dto/create-inspection.dto';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class InspectionsService {
   constructor(
-    @InjectRepository(Inspection)
-    private inspectionsRepository: Repository<Inspection>,
-
-    @InjectRepository(Tree)
-    private treesRepository: Repository<Tree>,
+    private readonly storageService: StorageService,
   ) {}
 
-  async findAll() {
-    return this.inspectionsRepository.find({
-      relations: {
-        tree: true,
-      },
-    });
+  findAll() {
+    return this.storageService
+      .getInspections()
+      .map((inspection) => ({
+        ...inspection,
+        tree: this.getTreeById(inspection.treeId),
+      }));
   }
 
-  async create(
+  create(
     createInspectionDto: CreateInspectionDto,
   ) {
-    const tree = await this.treesRepository.findOne({
-      where: {
-        id: createInspectionDto.treeId,
-      },
+    const inspections =
+      this.storageService.getInspections();
+    const tree = this.getTreeById(createInspectionDto.treeId);
+
+    const inspection: Inspection = {
+      id: this.storageService.getNextId('inspections'),
+      inspectionDate: createInspectionDto.inspectionDate,
+      condition: createInspectionDto.condition,
+      comment: createInspectionDto.comment ?? '',
+      tree,
+    };
+
+    inspections.push({
+      id: inspection.id,
+      inspectionDate: inspection.inspectionDate,
+      condition: inspection.condition,
+      comment: inspection.comment,
+      treeId: createInspectionDto.treeId,
     });
 
-    const inspection = new Inspection();
+    return inspection;
+  }
 
-    inspection.inspectionDate =
-  new Date(createInspectionDto.inspectionDate);
+  private getTreeById(id: number) {
+    const tree = this.storageService
+      .getTrees()
+      .find((item) => item.id === id);
 
-    inspection.condition =
-      createInspectionDto.condition;
+    if (!tree) {
+      throw new NotFoundException(
+        `Дерево с id=${id} не найдено`,
+      );
+    }
 
-    inspection.comment =
-      createInspectionDto.comment ?? '';
+    const species = this.storageService
+      .getSpecies()
+      .find((item) => item.id === tree.speciesId);
+    const zone = this.storageService
+      .getZones()
+      .find((item) => item.id === tree.zoneId);
 
-    inspection.tree = tree!;
+    if (!species || !zone) {
+      throw new NotFoundException(
+        'Для дерева не найдены связанные данные',
+      );
+    }
 
-    return this.inspectionsRepository.save(
-      inspection,
-    );
+    return {
+      id: tree.id,
+      name: tree.name,
+      age: tree.age,
+      height: tree.height,
+      plantingDate: tree.plantingDate,
+      species,
+      zone,
+    };
   }
 }

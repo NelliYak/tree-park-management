@@ -1,19 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { InspectionsController } from './inspections.controller';
 import { InspectionsService } from './inspections.service';
-
-import { Inspection } from './entities/inspection.entity';
-import { Tree } from '../trees/entities/tree.entity';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Inspection,
-      Tree,
-    ]),
-  ],
+  imports: [StorageModule],
   controllers: [InspectionsController],
   providers: [InspectionsService],
 })

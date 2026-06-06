@@ -1,7 +1,9 @@
 import {
-  IsNotEmpty,
+  IsDateString,
   IsInt,
+  IsNotEmpty,
   IsNumber,
+  Min,
 } from 'class-validator';
 
 export class CreateTreeDto {
@@ -9,13 +11,15 @@ export class CreateTreeDto {
   name: string;
 
   @IsInt()
+  @Min(0)
   age: number;
 
   @IsNumber()
+  @Min(0)
   height: number;
 
-  @IsNotEmpty()
-  plantingDate: Date;
+  @IsDateString()
+  plantingDate: string;
 
   @IsInt()
   speciesId: number;

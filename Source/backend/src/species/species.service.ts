@@ -1,25 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 
 import { Species } from './entities/species.entity';
 import { CreateSpeciesDto } from './dto/create-species.dto';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class SpeciesService {
   constructor(
-    @InjectRepository(Species)
-    private speciesRepository: Repository<Species>,
+    private readonly storageService: StorageService,
   ) {}
 
   findAll() {
-    return this.speciesRepository.find();
+    return this.storageService.getSpecies();
   }
 
   create(createSpeciesDto: CreateSpeciesDto) {
-    const species =
-      this.speciesRepository.create(createSpeciesDto);
+    const speciesList = this.storageService.getSpecies();
+    const alreadyExists = speciesList.some(
+      (item) =>
+        item.name.toLowerCase() ===
+        createSpeciesDto.name.toLowerCase(),
+    );
 
-    return this.speciesRepository.save(species);
+    if (alreadyExists) {
+      throw new ConflictException(
+        'Такая порода деревьев уже добавлена',
+      );
+    }
+
+    const species: Species = {
+      id: this.storageService.getNextId('species'),
+      name: createSpeciesDto.name,
+    };
+
+    speciesList.push(species);
+
+    return species;
   }
 }
