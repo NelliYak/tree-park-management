@@ -49,6 +49,3 @@ npm run dev
 Исходный набор данных лежит в [DB/tree-park-seed.json](/C:/Users/nelli/OneDrive/Документы/tree-park-management/DB/tree-park-seed.json).
 При запуске backend загружает его в память, а изменения не сохраняются между перезапусками приложения.
 
-## Отчет
-
-Пояснительная записка и генератор отчета находятся в [Documents](/C:/Users/nelli/OneDrive/Документы/tree-park-management/Documents).
