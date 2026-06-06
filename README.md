@@ -37,9 +37,9 @@ npm run start
 ### Frontend
 
 ```bash
-cd Source/frontend
-npm install
-npm run dev
+taskkill /PID 27672 /F
+cd "C:\Users\nelli\OneDrive\Документы\tree-park-management\Source\frontend"
+npm.cmd run dev -- --host 127.0.0.1 --port 5173
 ```
 
 Клиентская часть обращается к API на `http://localhost:3000`.
